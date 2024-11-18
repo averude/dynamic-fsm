@@ -27,7 +27,7 @@ public class FSMTree<E, V> {
 
     public void addTransition(V from, V to, E edge, NodeTypes nodeType) {
         validateParameters(from, to, edge);
-        Objects.requireNonNull(nodeType);
+        Objects.requireNonNull(nodeType, "node type cannot be null");
 
         Node<E, V> fromNode = getNode(from);
         if (fromNode.hasChild(edge)) {
@@ -62,14 +62,12 @@ public class FSMTree<E, V> {
     }
 
     public void removeTransition(V from, V to, E edge) {
-        validateParameters(from, to, edge);
+        if (!hasTransition(from, to, edge)) {
+            throw new NoSuchElementException("Transition not found from [%s] to [%s] on edge [%s]".formatted(from, to, edge));
+        }
 
         Node<E, V> fromNode = getNode(from);
         Node<E, V> toNode = getNode(to);
-
-        if (!fromNode.hasChild(edge) || fromNode.getChild(edge) != toNode) {
-            throw new NoSuchElementException("Transition not found from [%s] to [%s] on edge [%s]".formatted(from, to, edge));
-        }
 
         fromNode.removeChild(edge);
 
