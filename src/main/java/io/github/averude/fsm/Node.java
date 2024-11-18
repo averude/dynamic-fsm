@@ -1,9 +1,17 @@
 package io.github.averude.fsm;
 
+import java.util.Collection;
+
 public interface Node<K, V> {
     void addChild(K key, Node<K, V> child);
 
-    Node<K, V> getNext(K key);
+    void removeChild(K key);
+
+    int getChildCount();
+
+    Collection<Node<K, V>> getChildren();
+
+    Node<K, V> getChild(K key);
 
     V getValue();
 
