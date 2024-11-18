@@ -44,7 +44,7 @@ public class FSMTree<E, V> {
         Node<E, V> fromNode = getNode(from);
         Node<E, V> toNode = getNode(to);
 
-        return fromNode.hasChild(edge) && fromNode.getChild(edge) == toNode;
+        return fromNode.hasChild(edge) && fromNode.getChild(edge).equals(toNode);
     }
 
     public boolean hasAnyTransition(V from, V to) {
@@ -98,7 +98,7 @@ public class FSMTree<E, V> {
     private boolean hasNoEdgesLeftTo(Node<E, V> toNode) {
         return nodesMap.values()
                 .stream()
-                .filter(node -> node != toNode)
+                .filter(node -> !node.equals(toNode))
                 .noneMatch(node -> node.getChildren().contains(toNode));
     }
 
