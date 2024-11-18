@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FSMTreeTest {
     String start = "Start";
@@ -113,5 +115,62 @@ class FSMTreeTest {
         fsmTree.addTransition(start, end, 1);
 
         assertThrows(NoSuchElementException.class, () -> fsmTree.addTransition("Invalid", end, 1));
+    }
+
+    @Test
+    void removeTransition() {
+        FSMTree<Integer, String> fsmTree = new FSMTree<>(start);
+        fsmTree.addTransition(start, end, 1);
+        fsmTree.addTransition(start, end, 10);
+
+        String result = fsmTree.traverse(List.of(10));
+        assertEquals(end, result);
+
+        fsmTree.removeTransition(start, end, 10);
+
+        assertTrue(fsmTree.hasAnyTransition(start, end));
+        assertTrue(fsmTree.hasTransition(start, end, 1));
+        assertFalse(fsmTree.hasTransition(start, end, 10));
+        assertEquals(2, fsmTree.size());
+        assertTrue(fsmTree.hasVertex(end));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(List.of(10)));
+    }
+
+    @Test
+    void removeTransitionButWithDifferentToVertex() {
+        FSMTree<Integer, String> fsmTree = new FSMTree<>(start);
+        fsmTree.addTransition(start, end, 1);
+        fsmTree.addTransition(start, end, 10);
+
+        String result = fsmTree.traverse(List.of(10));
+        assertEquals(end, result);
+
+        assertThrows(NoSuchElementException.class, () -> fsmTree.removeTransition(start, start, 10));
+
+        assertTrue(fsmTree.hasTransition(start, end, 1));
+        assertTrue(fsmTree.hasTransition(start, end, 10));
+        assertEquals(2, fsmTree.size());
+        assertTrue(fsmTree.hasVertex(end));
+        assertEquals(end, fsmTree.traverse(List.of(10)));
+    }
+
+    @Test
+    void removeTransitionAndVertex() {
+        var someState = "someState";
+
+        FSMTree<Integer, String> fsmTree = new FSMTree<>(start);
+        fsmTree.addTransition(start, end, 1);
+        fsmTree.addTransition(start, someState, 10);
+
+        String result = fsmTree.traverse(List.of(10));
+        assertEquals(someState, result);
+
+        fsmTree.removeTransition(start, someState, 10);
+
+        assertTrue(fsmTree.hasTransition(start, end, 1));
+        assertEquals(2, fsmTree.size());
+        assertThrows(NoSuchElementException.class, () -> fsmTree.hasTransition(start, someState, 10));
+        assertFalse(fsmTree.hasVertex(someState));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(List.of(10)));
     }
 }

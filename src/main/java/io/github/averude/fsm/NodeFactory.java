@@ -1,5 +1,6 @@
 package io.github.averude.fsm;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -22,6 +23,21 @@ public class NodeFactory {
         }
 
         @Override
+        public void removeChild(K key) {
+            children.remove(key);
+        }
+
+        @Override
+        public int getChildCount() {
+            return children.size();
+        }
+
+        @Override
+        public Collection<Node<K, V>> getChildren() {
+            return children.values();
+        }
+
+        @Override
         public V getValue() {
             return value;
         }
@@ -39,11 +55,11 @@ public class NodeFactory {
         }
 
         @Override
-        public Node<K, V> getNext(K key) {
+        public Node<K, V> getChild(K key) {
             if (children.containsKey(key)) {
                 return children.get(key);
             } else {
-                throw new NoSuchElementException("Node does not contain the key " + key);
+                throw new NoSuchElementException("Node does not contain the key: [%s]".formatted(key));
             }
         }
     }
@@ -55,7 +71,7 @@ public class NodeFactory {
         }
 
         @Override
-        public Node<K, V> getNext(K key) {
+        public Node<K, V> getChild(K key) {
             return children.getOrDefault(key, this);
         }
     }
