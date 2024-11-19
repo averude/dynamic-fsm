@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public class FSMTree<E, V> {
+public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
     private static final NodeFactory NODE_FACTORY = new NodeFactory();
     private final VertexTypes defaultVertexType;
     private final Node<E, V> root;
@@ -21,10 +21,12 @@ public class FSMTree<E, V> {
         nodesMap.put(vertex, root);
     }
 
+    @Override
     public void addTransition(V from, V to, E edge) {
         addTransition(from, to, edge, defaultVertexType);
     }
 
+    @Override
     public void addTransition(V from, V to, E edge, VertexTypes vertexType) {
         validateParameters(from, to, edge);
         Objects.requireNonNull(vertexType, "vertex type cannot be null");
@@ -38,6 +40,7 @@ public class FSMTree<E, V> {
         fromNode.addChild(edge, toNode);
     }
 
+    @Override
     public boolean hasTransition(V from, V to, E edge) {
         validateParameters(from, to, edge);
 
@@ -47,6 +50,7 @@ public class FSMTree<E, V> {
         return fromNode.hasChild(edge) && fromNode.getChild(edge).equals(toNode);
     }
 
+    @Override
     public boolean hasAnyTransition(V from, V to) {
         validateParameters(from, to);
 
@@ -56,11 +60,13 @@ public class FSMTree<E, V> {
         return fromNode.getChildren().contains(toNode);
     }
 
+    @Override
     public boolean hasVertex(V vertex) {
         Objects.requireNonNull(vertex);
         return nodesMap.containsKey(vertex);
     }
 
+    @Override
     public void removeTransition(V from, V to, E edge) {
         if (!hasTransition(from, to, edge)) {
             throw new NoSuchElementException("Transition not found from [%s] to [%s] on edge [%s]".formatted(from, to, edge));
@@ -76,6 +82,7 @@ public class FSMTree<E, V> {
         }
     }
 
+    @Override
     public VertexTypes getVertexType(V vertex) {
         return getNode(vertex).getType();
     }
@@ -106,10 +113,12 @@ public class FSMTree<E, V> {
                 .noneMatch(node -> node.getChildren().contains(toNode));
     }
 
+    @Override
     public V traverse(Iterable<E> edges) {
         return traverse(root, edges);
     }
 
+    @Override
     public V traverse(V vertex, Iterable<E> edges) {
         Node<E, V> startNode = getNode(vertex);
         return traverse(startNode, edges);
@@ -126,6 +135,7 @@ public class FSMTree<E, V> {
         return current.getValue();
     }
 
+    @Override
     public int size() {
         return nodesMap.size();
     }
