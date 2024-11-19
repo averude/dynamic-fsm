@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class NodeFactory {
-    public <K, V> Node<K, V> createNode(V value, NodeTypes type) {
+    public <K, V> Node<K, V> createNode(V value, VertexTypes type) {
         return switch (type) {
-            case DEFAULT -> new DefaultNode<>(value);
+            case BASIC -> new DefaultNode<>(value);
             case LOOPED -> new LoopedNode<>(value);
         };
     }
@@ -62,6 +62,11 @@ public class NodeFactory {
                 throw new NoSuchElementException("Node does not contain the key: [%s]".formatted(key));
             }
         }
+
+        @Override
+        public VertexTypes getType() {
+            return VertexTypes.BASIC;
+        }
     }
 
     static class LoopedNode<K, V> extends AbstractNode<K, V> {
@@ -73,6 +78,11 @@ public class NodeFactory {
         @Override
         public Node<K, V> getChild(K key) {
             return children.getOrDefault(key, this);
+        }
+
+        @Override
+        public VertexTypes getType() {
+            return VertexTypes.LOOPED;
         }
     }
 }

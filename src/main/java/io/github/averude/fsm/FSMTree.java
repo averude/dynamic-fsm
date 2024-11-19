@@ -7,34 +7,34 @@ import java.util.Objects;
 
 public class FSMTree<E, V> {
     private static final NodeFactory NODE_FACTORY = new NodeFactory();
-    private final NodeTypes nodeType;
+    private final VertexTypes defaultVertexType;
     private final Node<E, V> root;
     private final Map<V, Node<E, V>> nodesMap = new HashMap<>();
 
     public FSMTree(V vertex) {
-        this(vertex, NodeTypes.DEFAULT);
+        this(vertex, VertexTypes.BASIC);
     }
 
-    public FSMTree(V vertex, NodeTypes nodeType) {
-        this.nodeType = nodeType;
-        this.root = NODE_FACTORY.createNode(vertex, nodeType);
+    public FSMTree(V vertex, VertexTypes defaultVertexType) {
+        this.defaultVertexType = defaultVertexType;
+        this.root = NODE_FACTORY.createNode(vertex, defaultVertexType);
         nodesMap.put(vertex, root);
     }
 
     public void addTransition(V from, V to, E edge) {
-        addTransition(from, to, edge, nodeType);
+        addTransition(from, to, edge, defaultVertexType);
     }
 
-    public void addTransition(V from, V to, E edge, NodeTypes nodeType) {
+    public void addTransition(V from, V to, E edge, VertexTypes vertexType) {
         validateParameters(from, to, edge);
-        Objects.requireNonNull(nodeType, "node type cannot be null");
+        Objects.requireNonNull(vertexType, "vertex type cannot be null");
 
         Node<E, V> fromNode = getNode(from);
         if (fromNode.hasChild(edge)) {
             throw new IllegalArgumentException("Transition already exists from: [%s] on edge: [%s]".formatted(from, edge));
         }
 
-        Node<E, V> toNode = nodesMap.computeIfAbsent(to, v -> NODE_FACTORY.createNode(v, nodeType));
+        Node<E, V> toNode = nodesMap.computeIfAbsent(to, v -> NODE_FACTORY.createNode(v, vertexType));
         fromNode.addChild(edge, toNode);
     }
 
@@ -74,6 +74,10 @@ public class FSMTree<E, V> {
         if (toNode.getChildCount() == 0 && hasNoEdgesLeftTo(toNode)) {
             nodesMap.remove(to);
         }
+    }
+
+    public VertexTypes getVertexType(V vertex) {
+        return getNode(vertex).getType();
     }
 
     private void validateParameters(V from, V to, E edge) {
