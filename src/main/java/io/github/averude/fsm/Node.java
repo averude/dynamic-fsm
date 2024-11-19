@@ -16,4 +16,6 @@ public interface Node<K, V> {
     V getValue();
 
     boolean hasChild(K key);
+
+    VertexTypes getType();
 }
