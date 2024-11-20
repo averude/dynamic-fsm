@@ -1,21 +1,22 @@
 package io.github.averude.fsm;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
+public class FiniteStateMachineGraph<E, V> implements MutableFiniteStateMachine<E, V> {
     private static final NodeFactory NODE_FACTORY = new NodeFactory();
 
     private final VertexTypes defaultVertexType;
     private final Map<V, Node<E, V>> nodesMap = new HashMap<>();
 
-    public FSMTree() {
+    public FiniteStateMachineGraph() {
         this(VertexTypes.BASIC);
     }
 
-    public FSMTree(VertexTypes defaultVertexType) {
+    public FiniteStateMachineGraph(VertexTypes defaultVertexType) {
         this.defaultVertexType = defaultVertexType;
     }
 
@@ -60,6 +61,23 @@ public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
 
         Node<E, V> toNode = getNode(to);
         fromNode.addChild(edge, toNode);
+    }
+
+    @Override
+    public void addTransitions(V from, V to, Iterable<E> edges) {
+        validateParameters(from, to);
+        Objects.requireNonNull(edges, "edges cannot be null");
+
+        Node<E, V> fromNode = getNode(from);
+        Node<E, V> toNode = getNode(to);
+
+        for (E edge : edges) {
+            if (fromNode.hasChild(edge)) {
+                throw new IllegalArgumentException("Transition already exists from: [%s] on edge: [%s]".formatted(from, edge));
+            }
+
+            fromNode.addChild(edge, toNode);
+        }
     }
 
     @Override

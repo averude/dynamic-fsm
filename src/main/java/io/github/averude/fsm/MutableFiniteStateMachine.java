@@ -9,6 +9,8 @@ public interface MutableFiniteStateMachine<E, V> extends FiniteStateMachine<E, V
 
     void addTransition(V from, V to, E edge);
 
+    void addTransitions(V from, V to, Iterable<E> edges);
+
     void removeTransition(V from, V to, E edge);
 
     void clear();
