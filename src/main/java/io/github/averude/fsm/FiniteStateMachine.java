@@ -1,6 +1,6 @@
 package io.github.averude.fsm;
 
-public interface FiniteStateMachine<E, V> {
+public interface FiniteStateMachine<E, V> extends Iterable<V> {
     boolean hasTransition(V from, V to, E edge);
 
     boolean hasAnyTransition(V from, V to);

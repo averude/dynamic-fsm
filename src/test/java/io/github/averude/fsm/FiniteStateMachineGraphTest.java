@@ -2,8 +2,10 @@ package io.github.averude.fsm;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -319,5 +321,23 @@ class FiniteStateMachineGraphTest {
         assertEquals(0, finiteStateMachineGraph.size());
         assertFalse(finiteStateMachineGraph.hasVertex(START));
         assertFalse(finiteStateMachineGraph.hasVertex(END));
+    }
+
+    @Test
+    void iterateOverValues() {
+        FiniteStateMachineGraph<Integer, String> finiteStateMachineGraph = new FiniteStateMachineGraph<>();
+
+        finiteStateMachineGraph.addVertex(START);
+        finiteStateMachineGraph.addVertex(END);
+        finiteStateMachineGraph.addTransitions(START, END, List.of(1, 2, 3, 4, 5));
+
+        int valuesCount = 0;
+        Set<String> graphValues = new HashSet<>();
+        for (String value : finiteStateMachineGraph) {
+            assertTrue(graphValues.add(value));
+            valuesCount++;
+        }
+        assertEquals(valuesCount, finiteStateMachineGraph.size());
+        assertEquals(graphValues, Set.of(START, END));
     }
 }

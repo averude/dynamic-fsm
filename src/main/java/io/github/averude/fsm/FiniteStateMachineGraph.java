@@ -166,4 +166,29 @@ public class FiniteStateMachineGraph<E, V> implements MutableFiniteStateMachine<
     public void clear() {
         nodesMap.clear();
     }
+
+    @Override
+    public Iterator<V> iterator() {
+        return new Iterator<>() {
+            private final Iterator<V> mapIterator = nodesMap.keySet().iterator();
+
+            @Override
+            public boolean hasNext() {
+                return mapIterator.hasNext();
+            }
+
+            @Override
+            public V next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("No more elements in the FSMTree");
+                }
+                return mapIterator.next();
+            }
+
+            @Override
+            public void remove() {
+                mapIterator.remove();
+            }
+        };
+    }
 }
