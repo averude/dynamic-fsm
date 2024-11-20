@@ -9,9 +9,7 @@ public interface FiniteStateMachine<E, V> {
 
     VertexTypes getVertexType(V vertex);
 
-    V traverse(Iterable<E> edges);
-
-    V traverse(V vertex, Iterable<E> edges);
+    V traverse(V from, Iterable<E> edges);
 
     int size();
 }
