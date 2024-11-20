@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class NodeFactory {
     public <K, V> Node<K, V> createNode(V value, VertexTypes type) {
@@ -25,6 +26,11 @@ public class NodeFactory {
         @Override
         public void removeChild(K key) {
             children.remove(key);
+        }
+
+        @Override
+        public void removeChild(Node<K, V> node) {
+            children.entrySet().removeIf(entry -> Objects.equals(entry.getValue(), node));
         }
 
         @Override

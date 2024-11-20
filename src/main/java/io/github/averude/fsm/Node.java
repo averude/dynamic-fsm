@@ -7,6 +7,8 @@ public interface Node<K, V> {
 
     void removeChild(K key);
 
+    void removeChild(Node<K, V> node);
+
     int getChildCount();
 
     Collection<Node<K, V>> getChildren();

@@ -16,10 +16,13 @@ class FSMTreeTest {
 
     @Test
     void simpleFSM() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
 
-        String result = fsmTree.traverse(List.of(1));
+        String result = fsmTree.traverse(START, List.of(1));
         assertEquals(END, result);
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
@@ -30,9 +33,11 @@ class FSMTreeTest {
 
     @Test
     void simpleLoopedFSM() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START, VertexTypes.LOOPED);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>(VertexTypes.LOOPED);
 
-        String result = fsmTree.traverse(List.of(1));
+        fsmTree.addVertex(START);
+
+        String result = fsmTree.traverse(START, List.of(1));
         assertEquals(START, result);
         assertFalse(fsmTree.hasTransition(START, START, 1));
         assertEquals(VertexTypes.LOOPED, fsmTree.getVertexType(START));
@@ -41,11 +46,14 @@ class FSMTreeTest {
 
     @Test
     void simpleTwoDirectionFSM() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
         fsmTree.addTransition(END, START, 1);
 
-        String result = fsmTree.traverse(List.of(1, 1));
+        String result = fsmTree.traverse(START, List.of(1, 1));
         assertEquals(START, result);
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
@@ -58,11 +66,14 @@ class FSMTreeTest {
 
     @Test
     void simpleSelfPointingNodeFSM() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
         fsmTree.addTransition(END, END, 2);
 
-        String result = fsmTree.traverse(List.of(1, 2));
+        String result = fsmTree.traverse(START, List.of(1, 2));
         assertEquals(END, result);
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
@@ -77,7 +88,10 @@ class FSMTreeTest {
 
     @Test
     void sameEdgeToVertexTwice_throwsIllegalArgumentException() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
 
         assertThrows(IllegalArgumentException.class, () -> fsmTree.addTransition(START, END, 1));
@@ -94,7 +108,10 @@ class FSMTreeTest {
         String pause = "Pause";
         String stop = "Stop";
 
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(stop);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+        fsmTree.addVertex(stop);
+        fsmTree.addVertex(play);
+        fsmTree.addVertex(pause);
         fsmTree.addTransition(stop, play, 1);
         fsmTree.addTransition(play, pause, 1);
         fsmTree.addTransition(play, stop, 2);
@@ -102,7 +119,7 @@ class FSMTreeTest {
         fsmTree.addTransition(pause, stop, 2);
 
         // Play, Stop, Play, Pause, Stop, Play, Pause, Play
-        String result = fsmTree.traverse(List.of(1, 2, 1, 1, 2, 1, 1, 1));
+        String result = fsmTree.traverse(stop, List.of(1, 2, 1, 1, 2, 1, 1, 1));
 
         assertEquals(play, result);
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(stop));
@@ -125,7 +142,11 @@ class FSMTreeTest {
     void transitionFromVertex() {
         String intermediate = "Intermediate";
 
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
+        fsmTree.addVertex(intermediate);
         fsmTree.addTransition(START, END, 1);
         fsmTree.addTransition(END, START, 1);
         fsmTree.addTransition(END, intermediate, 2);
@@ -146,11 +167,14 @@ class FSMTreeTest {
     }
 
     @Test
-    void invalidEdgeForSimpleNodeType() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+    void invalidEdgeForBasicNodeType() {
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
 
-        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(List.of(10)));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(START, List.of(10)));
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
         assertTrue(fsmTree.hasTransition(START, END, 1));
@@ -160,10 +184,13 @@ class FSMTreeTest {
 
     @Test
     void invalidEdgeForLoopedNodeType() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
-        fsmTree.addTransition(START, END, 1, VertexTypes.LOOPED);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
 
-        String result = fsmTree.traverse(List.of(1, 10));
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END, VertexTypes.LOOPED);
+        fsmTree.addTransition(START, END, 1);
+
+        String result = fsmTree.traverse(START, List.of(1, 10));
         assertEquals(END, result);
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
         assertEquals(VertexTypes.LOOPED, fsmTree.getVertexType(END));
@@ -174,7 +201,10 @@ class FSMTreeTest {
 
     @Test
     void invalidVertex() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
 
         assertThrows(NoSuchElementException.class, () -> fsmTree.addTransition("Invalid", END, 1));
@@ -186,12 +216,51 @@ class FSMTreeTest {
     }
 
     @Test
+    void removeVertex() {
+        String running = "running";
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(running);
+        fsmTree.addVertex(END);
+        fsmTree.addTransition(START, END, 1);
+        fsmTree.addTransition(START, running, 2);
+        fsmTree.addTransition(running, running, 2);
+        fsmTree.addTransition(running, END, 3);
+        fsmTree.addTransition(START, END, 10);
+
+        String result = fsmTree.traverse(START, List.of(2, 2, 2, 3));
+        assertEquals(END, result);
+
+        fsmTree.removeVertex(running);
+
+        assertFalse(fsmTree.hasVertex(running));
+        assertEquals(2, fsmTree.size());
+        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(END, List.of(2, 2, 2, 3)));
+        assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
+        assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
+        assertTrue(fsmTree.hasTransition(START, END, 1));
+        assertTrue(fsmTree.hasTransition(START, END, 10));
+        assertTrue(fsmTree.hasAnyTransition(START, END));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.hasTransition(START, running, 2));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.hasTransition(running, running, 2));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.hasTransition(running, END, 3));
+
+        // if edge survived, then exception will be thrown
+        fsmTree.addTransition(START, END, 2);
+        assertEquals(END, fsmTree.traverse(START, List.of(2)));
+    }
+
+    @Test
     void removeTransition() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
         fsmTree.addTransition(START, END, 10);
 
-        String result = fsmTree.traverse(List.of(10));
+        String result = fsmTree.traverse(START, List.of(10));
         assertEquals(END, result);
 
         fsmTree.removeTransition(START, END, 10);
@@ -203,16 +272,19 @@ class FSMTreeTest {
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
         assertEquals(2, fsmTree.size());
         assertTrue(fsmTree.hasVertex(END));
-        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(List.of(10)));
+        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(START, List.of(10)));
     }
 
     @Test
     void removeTransitionButWithDifferentToVertex() {
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
+
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
         fsmTree.addTransition(START, END, 10);
 
-        String result = fsmTree.traverse(List.of(10));
+        String result = fsmTree.traverse(START, List.of(10));
         assertEquals(END, result);
 
         assertThrows(NoSuchElementException.class, () -> fsmTree.removeTransition(START, START, 10));
@@ -223,31 +295,29 @@ class FSMTreeTest {
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
         assertEquals(2, fsmTree.size());
         assertTrue(fsmTree.hasVertex(END));
-        assertEquals(END, fsmTree.traverse(List.of(10)));
+        assertEquals(END, fsmTree.traverse(START, List.of(10)));
     }
 
     @Test
-    void removeTransitionAndVertex() {
-        var someState = "someState";
+    void clearFSM() {
+        FSMTree<Integer, String> fsmTree = new FSMTree<>();
 
-        FSMTree<Integer, String> fsmTree = new FSMTree<>(START);
+        fsmTree.addVertex(START);
+        fsmTree.addVertex(END);
         fsmTree.addTransition(START, END, 1);
-        fsmTree.addTransition(START, someState, 10);
 
-        String result = fsmTree.traverse(List.of(10));
-        assertEquals(someState, result);
+        String result = fsmTree.traverse(START, List.of(1));
+        assertEquals(END, result);
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
         assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
-        assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(someState));
-
-        fsmTree.removeTransition(START, someState, 10);
-
         assertTrue(fsmTree.hasTransition(START, END, 1));
-        assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(START));
-        assertEquals(VertexTypes.BASIC, fsmTree.getVertexType(END));
+        assertTrue(fsmTree.hasAnyTransition(START, END));
         assertEquals(2, fsmTree.size());
-        assertThrows(NoSuchElementException.class, () -> fsmTree.hasTransition(START, someState, 10));
-        assertFalse(fsmTree.hasVertex(someState));
-        assertThrows(NoSuchElementException.class, () -> fsmTree.traverse(List.of(10)));
+
+        fsmTree.clear();
+
+        assertEquals(0, fsmTree.size());
+        assertFalse(fsmTree.hasVertex(START));
+        assertFalse(fsmTree.hasVertex(END));
     }
 }

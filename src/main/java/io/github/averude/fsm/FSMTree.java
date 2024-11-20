@@ -7,36 +7,58 @@ import java.util.Objects;
 
 public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
     private static final NodeFactory NODE_FACTORY = new NodeFactory();
+
     private final VertexTypes defaultVertexType;
-    private final Node<E, V> root;
     private final Map<V, Node<E, V>> nodesMap = new HashMap<>();
 
-    public FSMTree(V vertex) {
-        this(vertex, VertexTypes.BASIC);
+    public FSMTree() {
+        this(VertexTypes.BASIC);
     }
 
-    public FSMTree(V vertex, VertexTypes defaultVertexType) {
+    public FSMTree(VertexTypes defaultVertexType) {
         this.defaultVertexType = defaultVertexType;
-        this.root = NODE_FACTORY.createNode(vertex, defaultVertexType);
-        nodesMap.put(vertex, root);
+    }
+
+    @Override
+    public void addVertex(V vertex) {
+        addVertex(vertex, defaultVertexType);
+    }
+
+    @Override
+    public void addVertex(V vertex, VertexTypes vertexType) {
+        Objects.requireNonNull(vertex, "vertex cannot be null");
+        Objects.requireNonNull(vertexType, "vertex type cannot be null");
+        Node<E, V> node = NODE_FACTORY.createNode(vertex, vertexType);
+        nodesMap.put(vertex, node);
+    }
+
+    @Override
+    public void removeVertex(V vertex) {
+        Node<E, V> node = getNode(vertex);
+
+        // cleanup of edges which point to this vertex
+        for (Map.Entry<V, Node<E, V>> entry : nodesMap.entrySet()) {
+            if (!Objects.equals(entry.getKey(), vertex)
+                    && entry.getValue().getChildCount() != 0) {
+                Node<E, V> evNode = entry.getValue();
+                evNode.removeChild(node);
+            }
+        }
+
+        // remove from map
+        nodesMap.remove(vertex);
     }
 
     @Override
     public void addTransition(V from, V to, E edge) {
-        addTransition(from, to, edge, defaultVertexType);
-    }
-
-    @Override
-    public void addTransition(V from, V to, E edge, VertexTypes vertexType) {
         validateParameters(from, to, edge);
-        Objects.requireNonNull(vertexType, "vertex type cannot be null");
 
         Node<E, V> fromNode = getNode(from);
         if (fromNode.hasChild(edge)) {
             throw new IllegalArgumentException("Transition already exists from: [%s] on edge: [%s]".formatted(from, edge));
         }
 
-        Node<E, V> toNode = nodesMap.computeIfAbsent(to, v -> NODE_FACTORY.createNode(v, vertexType));
+        Node<E, V> toNode = getNode(to);
         fromNode.addChild(edge, toNode);
     }
 
@@ -73,13 +95,7 @@ public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
         }
 
         Node<E, V> fromNode = getNode(from);
-        Node<E, V> toNode = getNode(to);
-
         fromNode.removeChild(edge);
-
-        if (toNode.getChildCount() == 0 && hasNoEdgesLeftTo(toNode)) {
-            nodesMap.remove(to);
-        }
     }
 
     @Override
@@ -106,21 +122,9 @@ public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
         return node;
     }
 
-    private boolean hasNoEdgesLeftTo(Node<E, V> toNode) {
-        return nodesMap.values()
-                .stream()
-                .filter(node -> !node.equals(toNode))
-                .noneMatch(node -> node.getChildren().contains(toNode));
-    }
-
     @Override
-    public V traverse(Iterable<E> edges) {
-        return traverse(root, edges);
-    }
-
-    @Override
-    public V traverse(V vertex, Iterable<E> edges) {
-        Node<E, V> startNode = getNode(vertex);
+    public V traverse(V from, Iterable<E> edges) {
+        Node<E, V> startNode = getNode(from);
         return traverse(startNode, edges);
     }
 
@@ -138,5 +142,10 @@ public class FSMTree<E, V> implements MutableFiniteStateMachine<E, V> {
     @Override
     public int size() {
         return nodesMap.size();
+    }
+
+    @Override
+    public void clear() {
+        nodesMap.clear();
     }
 }
