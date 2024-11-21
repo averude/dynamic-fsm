@@ -89,6 +89,14 @@ class FiniteStateMachineGraphTest {
     }
 
     @Test
+    void addSameVertexTwice_throwsIllegalArgumentException() {
+        FiniteStateMachineGraph<Integer, String> finiteStateMachineGraph = new FiniteStateMachineGraph<>();
+
+        finiteStateMachineGraph.addVertex(START);
+        assertThrows(IllegalArgumentException.class, () ->finiteStateMachineGraph.addVertex(START));
+    }
+
+    @Test
     void sameEdgeToVertexTwice_throwsIllegalArgumentException() {
         FiniteStateMachineGraph<Integer, String> finiteStateMachineGraph = new FiniteStateMachineGraph<>();
 
