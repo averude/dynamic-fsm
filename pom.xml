@@ -9,8 +9,10 @@
     <packaging>jar</packaging>
 
     <name>Dynamic FSM</name>
-    <!-- TODO: Add-->
-    <description></description>
+    <description>
+        Java library for state management utilizing a graph-based finite state machine (FSM) structure.
+        It allows for dynamic addition of transitions and state traversal in a type-safe environment.
+    </description>
     <url>https://github.com/averude/dynamic-fsm</url>
 
     <licenses>
