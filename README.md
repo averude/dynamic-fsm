@@ -3,26 +3,7 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Features](#features)
-3. Installation
-    - 3.1 Prerequisites
-    - 3.2 Installing the Package
-4. Usage
-    - 4.1 Creating a FSM Instance
-    - 4.2 Adding Transitions
-    - 4.3 Removing Transitions
-    - 4.4 Traversing the FSM
-    - 4.5 Checking Transitions and States
-5. API Reference
-    - 5.1 FSMTree
-    - 5.2 Node
-    - 5.3 VertexTypes
-6. Examples
-    - 6.1 Basic Example
-    - 6.2 Looped Node Example
-7. Contribution
-    - 7.1 How to Contribute
-    - 7.2 Contributors
-8. License
+3. [Example](#example)
 
 ## Introduction
 
@@ -55,3 +36,83 @@ The finite state machine (FSM) library provides a robust set of functionalities 
 7. **Loops and Recursive States**: Special handling for looped nodes allows for easy modeling of recursive states or self-transitions.
 
 With these features, the finite state machine library provides a powerful yet flexible way to model complex state-dependent behaviors in applications. Whether you are building simple sequences or intricate state-dependent interactions, this library helps streamline state management and operations.
+
+## Example
+
+Assuming we have a music player state machine, which has 3 states: _stopped_, _playing_ and _paused_.
+Commands for changing the state are: _play_, _pause_ and _stop_.
+The transition between the states would be:
+- From _stopped_ to _playing_: _play_ command
+- From _playing_ to _stopped_: _stop_ command
+- From _playing_ to _paused_: _pause_ command
+- From _paused_ to _playing_: _play_ command
+- From _paused_ to _stopped_: _stop_ command
+
+With help of **dynamic-fsm** library we can get the result state after the list of commands:
+
+```java
+import io.github.averude.fsm.FiniteStateMachineGraph;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+interface State {
+    String getStateDescription();
+}
+
+class StoppedState implements State {
+    @Override
+    public String getStateDescription() {
+        return "The music is stopped";
+    }
+}
+
+class PlayingState implements State {
+    @Override
+    public String getStateDescription() {
+        return "The music is playing";
+    }
+}
+
+class PausedState implements State {
+    @Override
+    public String getStateDescription() {
+        return "The music is paused";
+    }
+}
+
+public class FSMUsageExampleTest {
+    @Test
+    void name() {
+        var stateMachine = new FiniteStateMachineGraph<String, State>();
+
+        var playCommand = "Play";
+        var pauseCommand = "Pause";
+        var stopCommand = "Stop";
+
+        var stoppedState = new StoppedState();
+        var playingState = new PlayingState();
+        var pausedState = new PausedState();
+
+        stateMachine.addVertex(stoppedState);
+        stateMachine.addVertex(playingState);
+        stateMachine.addVertex(pausedState);
+
+        stateMachine.addTransition(stoppedState, playingState, playCommand);
+        stateMachine.addTransition(playingState, pausedState, pauseCommand);
+        stateMachine.addTransition(playingState, stoppedState, stopCommand);
+        stateMachine.addTransition(pausedState, playingState, playCommand);
+        stateMachine.addTransition(pausedState, stoppedState, stopCommand);
+
+        State stateAfterTraverse = stateMachine.traverse(
+                stoppedState,
+                List.of(playCommand, pauseCommand, playCommand, stopCommand)
+        );
+
+        assertEquals("The music is stopped", stateAfterTraverse.getStateDescription());
+    }
+}
+
+```
