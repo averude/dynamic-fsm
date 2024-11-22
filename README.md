@@ -3,7 +3,8 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Features](#features)
-3. [Example](#example)
+3. [Installation]($installation)
+4. [Example](#example)
 
 ## Introduction
 
@@ -36,6 +37,30 @@ The finite state machine (FSM) library provides a robust set of functionalities 
 7. **Loops and Recursive States**: Special handling for looped nodes allows for easy modeling of recursive states or self-transitions.
 
 With these features, the finite state machine library provides a powerful yet flexible way to model complex state-dependent behaviors in applications. Whether you are building simple sequences or intricate state-dependent interactions, this library helps streamline state management and operations.
+
+## Installation
+
+To add the Dynamic FSM library to your project, use the following dependency declarations:
+
+### Maven
+
+Add the following dependency to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>io.github.averude</groupId>
+    <artifactId>dynamic-fsm</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+
+### Gradle
+
+For Gradle, include the following implementation in your `build.gradle`:
+
+```groovy
+implementation 'io.github.averude:dynamic-fsm:0.0.1'
+```
 
 ## Example
 
